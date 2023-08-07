@@ -68,6 +68,7 @@ my $maildirectory='mail';
 my $spamfolder='Junk';
 my $mailhost='localhost';
 my $fromemail='do-not-reply@igb.illinois.edu';
+my $adminemail='help@igb.illinois.edu';
 my $fromname='IGB Detect Spam';
 my $domain='@igb.illinois.edu';
 my %monthtonum = (
@@ -158,16 +159,13 @@ while(my $uid=shift(@uids)) {
 			}
 			open(MBOX,"$full_spam_path") or die "Cannot open mailbox $full_spam_path\n";
 			flock(MBOX, LOCK_EX) or die "Cannot lock mailbox $full_spam_path\n";
-			delete_message(
-				from => "$full_spam_path",
-				matching => sub { my $message=shift; foreach my $deletemessage (@deletemessages) {
-						if($message->header('Message-ID') eq $deletemessage) {
-							return 1;
-						}
-						return 0;
-					} 
-				}
-			);
+			foreach my $deletemessage (@deletemessages) {
+				delete_message(
+					from => "$full_spam_path",
+					matching => sub { my $message=shift; $message->header('Message-ID') eq $deletemessage; }
+				);
+			}
+
 			sleep($sleep);
 			flock(MBOX, LOCK_UN);
 			close(MBOX);
@@ -181,10 +179,10 @@ while(my $uid=shift(@uids)) {
 			$send_message .= "</style></head>\n";
 			$send_message .= "<body>";
 			$send_message .= "<div class='container-fluid'><div class='col-sm-8 offset-sm-4'>";
-			$send_message .= "<p>$fullname, </p>";
+			$send_message .= "<br><p>$fullname, </p>";
 			$send_message .= "<p>Today the following messages have been quarantined by the IGB Spam Filter.\n";
-			$send_message .= "If you wish to retrieve any of these messages, they are located in your <strong>Junk</strong> folder.  You can access ";
-			$send_message .= "the Junk folder by accessing the IGB webmail at <a href=\"http://mail.igb.illinois.edu\">http://mail.igb.illinois.edu</a>. ";
+			$send_message .= "If you wish to retrieve any of these messages, they are located in your <strong>Junk</strong> folder\n";
+			$send_message .= "You can access the Junk folder by accessing the IGB webmail at <a href=\"http://mail.igb.illinois.edu\">http://mail.igb.illinois.edu</a>.\n";
 			$send_message .= "or using IMAP to connect to the server.</p>\n";
 			$send_message .= "<p>Spam messages over <strong>$delta</strong> days old are automatically deleted.</div></p>"; 
 			$send_message .= "<div class='col-sm-8 offset-sm-4'><p><table class='table table-striped table-bordered table-sm'>\n";
@@ -195,7 +193,7 @@ while(my $uid=shift(@uids)) {
 			$send_message .= "</table></div>\n";
 			$send_message .= "<div class='col-sm-8 offset-sm-4'>\n";
 			$send_message .= "<p>IGB Computer Network Resource Group\n";
-			$send_message .= "<br><a href='mailto:help\@igb.illinois.edu'>help\@igb.illinois.edu</a>\n";
+			$send_message .= "<br><a href='mailto:$adminemail'>$adminemail</a>\n";
 			$send_message .= "</div></div></body></html>\n";
 
 			if (keys %todaysspam) {
