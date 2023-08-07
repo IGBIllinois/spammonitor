@@ -1,6 +1,6 @@
 # Spam Monitor
-Script checks a person's Junk folder and sends an email digest of spam message
-Uses Bootstrap 4.1.3 for email template
+Script checks a person's Junk folder and sends an email digest of spam message\n
+Uses Bootstrap 4.1.3 for email template\n
 
 # Requirements
 * Perl
