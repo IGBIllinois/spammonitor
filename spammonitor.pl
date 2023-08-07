@@ -22,8 +22,9 @@ use Cwd qw();
 sub help() {
         print "Usage: $0\n";
         print "Script checks a person's Junk folder and sends an email digest of spam messages\n";
-        print "\t--dry-run        Does dry run only\n";
-        print "\t-h|--help        Prints this help\n";
+        print "\t--dry-run	Does dry run only\n";
+	print "\t--verbose	Verbose messaging\n";
+        print "\t-h|--help	Prints this help\n";
         exit 0;
 }
 sub send_mail {
@@ -56,11 +57,13 @@ sub get_name {
 }
 
 my $dryrun = 0;
+my $verbose = 0;
 GetOptions ("dry-run" => \$dryrun,
+	"verbose" => \$verbose,
         "h|help" => sub { help() },
 ) or die("\n");
 
-my $delta=7;
+my $delta=2;
 my $sleep=1;
 my $homedirectory1='/home/a-m';
 my $homedirectory2='/home/n-z';
@@ -141,11 +144,15 @@ while(my $uid=shift(@uids)) {
 							$todaysspam{$messageid}{'subject'}=$subject;
 						}
 						unless($deltadays < $delta) {
-							#print "Deleted message from $from $deltadays day old\n";
+							if ($verbose) {
+								print "Deleted message with subject $subject and from $from $deltadays day old\n";
+							}
 							push(@deletemessages,$messageid);
 						}
 						else {
-							#print "keep message from $from\n";
+							if ($verbose) {
+								print "Keep message with subject $subject from $from\n";
+							}
 						}
 					}
 					else {
@@ -153,22 +160,26 @@ while(my $uid=shift(@uids)) {
 					}
 				}
 				else {
-					#print "Invalid date header from $from, deleting message\n";
+					if ($verbose) {
+					print "Invalid date header with subject $subject from $from, deleting message\n";
+					}
 					push(@deletemessages,$messageid);
 				}
 			}
-			open(MBOX,"$full_spam_path") or die "Cannot open mailbox $full_spam_path\n";
-			flock(MBOX, LOCK_EX) or die "Cannot lock mailbox $full_spam_path\n";
+
+			#open(MBOX,"$full_spam_path") or die "Cannot open mailbox $full_spam_path\n";
+			#flock(MBOX, LOCK_EX) or die "Cannot lock mailbox $full_spam_path\n";
+			print join(", ", @deletemessages);
 			foreach my $deletemessage (@deletemessages) {
 				delete_message(
 					from => "$full_spam_path",
-					matching => sub { my $message=shift; $message->header('Message-ID') eq $deletemessage; }
+					matching => sub { my $message=shift; $message->header('Message-ID') =~ $deletemessage; }
 				);
 			}
 
-			sleep($sleep);
-			flock(MBOX, LOCK_UN);
-			close(MBOX);
+			#sleep($sleep);
+			#flock(MBOX, LOCK_UN);
+			#close(MBOX);
 			sleep($sleep);
 			my $fullname = get_name($uid);	
 			my $to = "$uid$domain";
