@@ -8,7 +8,8 @@
 * Perl Date::Calc
 * Perl Email::Simple
 * Perl Email::Folder
-* Perl libnet
+* Perl Email::Delete
+* Perl Net::SMTP
 
 # Installation
 * Install Perl cpanm to be able to install perl modules
