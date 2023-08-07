@@ -105,12 +105,12 @@ opendir(HOMEDIR,$homedirectory2);
 my @uids2=grep ! /^\./, readdir(HOMEDIR);
 closedir HOMEDIR;
 
-#push(@uids,@uids2); 
+push(@uids,@uids2); 
 
 
 #me only
-@uids=();
-@uids[0]='dslater';
+#@uids=();
+#@uids[0]='dslater';
 while(my $uid=shift(@uids)) {
 		#check if user is in a-m or n-z
 		my $full_spam_path;
@@ -160,20 +160,20 @@ while(my $uid=shift(@uids)) {
 				}
 				else {
 					if ($verbose) {
-					print "Invalid date header with subject $subject from $from, deleting message\n";
+						print "Invalid date header with subject $subject from $from, deleting message\n";
 					}
 					push(@deletemessages,$messageid);
 				}
 			}
 
-			print join(", ", @deletemessages);
-			foreach my $deletemessage (@deletemessages) {
-				delete_message(
-					from => "$full_spam_path",
-					matching => sub { my $message=shift; $message->header('Message-ID') =~ $deletemessage; }
-				);
+			if (!$dryrun) {
+				foreach my $deletemessage (@deletemessages) {
+					delete_message(
+						from => "$full_spam_path",
+						matching => sub { my $message=shift; $message->header('Message-ID') =~ $deletemessage; }
+					);
+				}
 			}
-
 			sleep($sleep);
 			my $fullname = get_name($uid);	
 			my $to = "$uid$domain";
@@ -202,12 +202,18 @@ while(my $uid=shift(@uids)) {
 			$send_message .= "</div></div></body></html>\n";
 
 			if (keys %todaysspam) {
-				send_mail($to,$send_message,$fromemail,$send_subject,$fromname);
-				my $num_spam = scalar keys %todaysspam;
-				print "$uid email sent. $num_spam spam messages\n";
+				if (!$dryrun) {
+					send_mail($to,$send_message,$fromemail,$send_subject,$fromname);
+					my $num_spam = scalar keys %todaysspam;
+					if ($verbose) {
+						print "$uid email sent. $num_spam spam messages\n";
+					}
+				}
 			}
 			else {
-				print "$uid has no spam.  Email not sent\n";
+				if ($verbose) {
+					print "$uid has no spam.  Email not sent\n";
+				}
 			}
 		}
 }

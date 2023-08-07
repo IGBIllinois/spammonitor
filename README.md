@@ -20,3 +20,8 @@ dnf install perl-App-cpanminus
 cpanm --installdeps -l $PWD/perl5 .
 ```
 
+* Create /etc/cron.d/spammonitor and run spammonitor.pl once a day
+```
+55 23 * * * root /usr/local/spammonitor/spammonitor.pl
+```
+
