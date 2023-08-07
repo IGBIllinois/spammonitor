@@ -15,6 +15,6 @@ dnf install perl-App-cpanminus
 ```
 * Install the perl modules using cpanm into the lib folder
 ```
-cpanm --installdeps -l $PWD/lib .
+cpanm --installdeps -l $PWD/perl5 .
 ```
 

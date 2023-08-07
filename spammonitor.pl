@@ -8,6 +8,7 @@
 
 use strict;
 use warnings;
+use local::lib './perl5';
 
 use Email::Simple;
 use Email::Folder;
