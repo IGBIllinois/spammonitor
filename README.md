@@ -11,9 +11,9 @@ Script checks a person's Junk folder and sends an email digest of spam message
 # Installation
 * On Rocky Linux, install the needed perl RPM Packages
 ```
-dnf install perl-Email-Simple
+dnf install perl-App-cpanminus perl-libnet perl-Email-Simple perl-Date-Calc
 ```
-* Generic Installation using cpanm
+* Install the remaining modules using cpanm
 ```
 cpanm --installdeps .
 ```

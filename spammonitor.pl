@@ -16,6 +16,7 @@ use Date::Calc qw(Delta_Days check_date);
 use Net::SMTP;
 use Getopt::Long;
 use Fcntl qw(:flock SEEK_END);
+use Cwd qw();
 
 sub help() {
         print "Usage: $0\n";
@@ -83,7 +84,9 @@ my %monthtonum = (	Jan => '1',
 my @now=localtime(time);
 $now[4]++;
 $now[5]+=1900;
-my $css_file = "/usr/local/spammonitor.new/bootstrap.min.css";
+
+my $current_path = Cwd::cwd();
+my $css_file = "$current_path/bootstrap.min.css";
 
 open FILE, $css_file or die "Couldn't open file: $!";
 my $css = do {local $/; <FILE> };
