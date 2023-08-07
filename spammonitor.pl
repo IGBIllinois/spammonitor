@@ -16,7 +16,6 @@ use Email::Delete qw[delete_message];
 use Date::Calc qw(Delta_Days check_date);
 use Net::SMTP;
 use Getopt::Long;
-use Fcntl qw(:flock SEEK_END);
 use Cwd qw();
 
 sub help() {
@@ -167,8 +166,6 @@ while(my $uid=shift(@uids)) {
 				}
 			}
 
-			#open(MBOX,"$full_spam_path") or die "Cannot open mailbox $full_spam_path\n";
-			#flock(MBOX, LOCK_EX) or die "Cannot lock mailbox $full_spam_path\n";
 			print join(", ", @deletemessages);
 			foreach my $deletemessage (@deletemessages) {
 				delete_message(
@@ -177,9 +174,6 @@ while(my $uid=shift(@uids)) {
 				);
 			}
 
-			#sleep($sleep);
-			#flock(MBOX, LOCK_UN);
-			#close(MBOX);
 			sleep($sleep);
 			my $fullname = get_name($uid);	
 			my $to = "$uid$domain";
