@@ -1,4 +1,5 @@
 # Spam Monitor
+[![Build Status](https://github.com/IGBIllinois/spammonitor/actions/workflows/main.yml/badge.svg)](https://github.com/IGBIllinois/spammonitor/actions/workflows/main.yml)
 Script checks a person's Junk folder and sends an email digest of spam message.\
 Uses Bootstrap 4.1.3 for email template.
 
