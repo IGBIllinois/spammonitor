@@ -1,11 +1,27 @@
-steps:
-    - uses: actions/checkout@v1
-    - name: Setup Perl
-      uses: shogo82148/actions-setup-perl@v1
-      with:
-        perl-version: '5.26'
-    - name: perl -V
-      run: perl -V
-    - run: cpanm --installdeps .
-    - run: prove -lv t
+name: Build Status
 
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  perl_tester:
+    runs-on:ubuntu-latest
+    name: "perl v${{ matrix.perl-version }}"
+
+  steps:
+    - uses: actions/checkout@v3
+
+steps:
+    - uses: actions/checkout@v3
+    - name: uses install-with-cpamn
+      uses: perl-actions/install-with-cpanm@stable
+        with:
+          cpanfile: "cpanfile"
+          sudo: false
+          perl-version: 
+            - '5.26'
+            - '5.28'
+            - '5.30'
