@@ -69,18 +69,20 @@ my $mailhost='localhost';
 my $fromemail='do-not-reply@igb.illinois.edu';
 my $fromname='IGB Detect Spam';
 my $domain='@igb.illinois.edu';
-my %monthtonum = (	Jan => '1',
-		Feb => '2',
-		Mar => '3',
-		Apr => '4',
-		May => '5',
-		Jun => '6',
-		Jul => '7',
-		Aug => '8',
-		Sep => '9',
-		Oct => '10',
-		Nov => '11',
-		Dec => '12',);
+my %monthtonum = (
+	Jan => '1',
+	Feb => '2',
+	Mar => '3',
+	Apr => '4',
+	May => '5',
+	Jun => '6',
+	Jul => '7',
+	Aug => '8',
+	Sep => '9',
+	Oct => '10',
+	Nov => '11',
+	Dec => '12'
+);
 my @now=localtime(time);
 $now[4]++;
 $now[5]+=1900;
@@ -153,10 +155,18 @@ while(my $uid=shift(@uids)) {
 					push(@deletemessages,$messageid);
 				}
 			}
-
-			open(MBOX,"$full_spam_path") or die "Cannot open $full_spam_path folder\n";
-			flock(MBOX, LOCK_EX);
-			delete_message(from => "$full_spam_path",matching => sub { my $message=shift; foreach my $deletemessage (@deletemessages){if($message->header('Message-ID') eq $deletemessage){return 1;}} return 0;});
+			open(MBOX,"$full_spam_path") or die "Cannot open mailbox $full_spam_path\n";
+			flock(MBOX, LOCK_EX) or die "Cannot lock mailbox $full_spam_path\n";
+			delete_message(
+				from => "$full_spam_path",
+				matching => sub { my $message=shift; foreach my $deletemessage (@deletemessages) {
+						if($message->header('Message-ID') eq $deletemessage) {
+							return 1;
+						}
+						return 0;
+					} 
+				}
+			);
 			sleep($sleep);
 			flock(MBOX, LOCK_UN);
 			close(MBOX);
@@ -186,6 +196,7 @@ while(my $uid=shift(@uids)) {
 			$send_message .= "<p>IGB Computer Network Resource Group\n";
 			$send_message .= "<br><a href='mailto:help\@igb.illinois.edu'>help\@igb.illinois.edu</a>\n";
 			$send_message .= "</div></div></body></html>\n";
+
 			if (keys %todaysspam) {
 				send_mail($to,$send_message,$fromemail,$send_subject,$fromname);
 				my $num_spam = scalar keys %todaysspam;
