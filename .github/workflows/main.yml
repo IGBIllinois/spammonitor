@@ -8,20 +8,18 @@ on:
 
 jobs:
   perl_tester:
-    runs-on:ubuntu-latest
-    name: "perl v${{ matrix.perl-version }}"
-
-  steps:
-    - uses: actions/checkout@v3
-
-steps:
-    - uses: actions/checkout@v3
-    - name: uses install-with-cpamn
-      uses: perl-actions/install-with-cpanm@stable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shogo82148/actions-setup-perl@v1
+      - name: cpanm installation
         with:
-          cpanfile: "cpanfile"
-          sudo: false
-          perl-version: 
-            - '5.26'
-            - '5.28'
-            - '5.30'
+          perl-version:
+            - '5.26' 
+            - '5.34'
+        run: cpanm --installdeps .
+
+      - name: Test Perl Syntax
+        run: if find . -name '*.pl' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi
+        run: if find . -name '*.cgi' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi
+        run: if find . -name '*.pm' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi 
