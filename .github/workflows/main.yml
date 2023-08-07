@@ -14,9 +14,10 @@ jobs:
       - name: Setup Perl
         uses: shogo82148/actions-setup-perl@v1
         with:
-          perl-version:
-            - '5.26' 
-            - '5.34'
+          perl-version: '5.26'
+      - name: perl -V
+        run: perl -V
+
       - name: Test cpanm
         run: cpanm --installdeps .
 
