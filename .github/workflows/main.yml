@@ -22,6 +22,4 @@ jobs:
         run: cpanm --installdeps .
 
       - name: Test Perl Syntax
-        run: if find . -name '*.pl' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi
-        run: if find . -name '*.cgi' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi
-        run: if find . -name '*.pm' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi 
+        run: if find . -name '*.pl' -name '*.cgi' -name '*.pm' -exec perl -c {} 2>&1 \; | grep "syntax error"; then exit 1; fi
