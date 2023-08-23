@@ -21,6 +21,7 @@ use Cwd qw();
 sub help() {
         print "Usage: $0\n";
         print "Script checks a person's Junk folder and sends an email digest of spam messages\n";
+	print "\t-u|--user	User to run on (Defaults to all Users)\n";
         print "\t--dry-run	Does dry run only\n";
 	print "\t--verbose	Verbose messaging\n";
         print "\t-h|--help	Prints this help\n";
@@ -32,7 +33,8 @@ sub send_mail {
 	my $from_email = $_[2];
 	my $email_subject = $_[3];
 	my $from_name = $_[4];
-	my $smtp = Net::SMTP->new("localhost");
+	my $mail_host = $_[5];
+	my $smtp = Net::SMTP->new($mail_host);
         $smtp->mail($from_email);
 	$smtp->to($email);
 	$smtp->data();
@@ -57,12 +59,14 @@ sub get_name {
 
 my $dryrun = 0;
 my $verbose = 0;
-GetOptions ("dry-run" => \$dryrun,
+my $user;
+GetOptions ("u|user=s" => \$user,
+	"dry-run" => \$dryrun,
 	"verbose" => \$verbose,
         "h|help" => sub { help() },
 ) or die("\n");
 
-my $delta=2;
+my $delta=10;
 my $sleep=1;
 my $homedirectory1='/home/a-m';
 my $homedirectory2='/home/n-z';
@@ -97,20 +101,26 @@ my $css_file = "$current_path/bootstrap.min.css";
 open FILE, $css_file or die "Couldn't open file: $!";
 my $css = do {local $/; <FILE> };
 close FILE;
-opendir(HOMEDIR,$homedirectory1);
-my @uids=grep ! /^\./, readdir(HOMEDIR);
-closedir HOMEDIR;
 
-opendir(HOMEDIR,$homedirectory2);
-my @uids2=grep ! /^\./, readdir(HOMEDIR);
-closedir HOMEDIR;
+my @uids = ();
+if (length($user) != 0) {
+	my @cmd = ("id $user > /dev/null 2>&1");
+	my $user_exists = system(@cmd) == 0 or die "User $user does not exist\n";
+	@uids[0] = $user;	
+}
 
-push(@uids,@uids2); 
+else { #Grab all users
+	opendir(HOMEDIR,$homedirectory1);
+	my @uids=grep ! /^\./, readdir(HOMEDIR);
+	closedir HOMEDIR;
 
+	opendir(HOMEDIR,$homedirectory2);
+	my @uids2=grep ! /^\./, readdir(HOMEDIR);
+	closedir HOMEDIR;
 
-#me only
-#@uids=();
-#@uids[0]='dslater';
+	push(@uids,@uids2); 
+	}
+
 while(my $uid=shift(@uids)) {
 		#check if user is in a-m or n-z
 		my $full_spam_path;
@@ -203,7 +213,7 @@ while(my $uid=shift(@uids)) {
 
 			if (keys %todaysspam) {
 				if (!$dryrun) {
-					send_mail($to,$send_message,$fromemail,$send_subject,$fromname);
+					send_mail($to,$send_message,$fromemail,$send_subject,$fromname,$mailhost);
 					my $num_spam = scalar keys %todaysspam;
 					if ($verbose) {
 						print "$uid email sent. $num_spam spam messages\n";
