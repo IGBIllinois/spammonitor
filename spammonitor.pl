@@ -16,7 +16,7 @@ use Email::Delete qw[delete_message];
 use Date::Calc qw(Delta_Days check_date);
 use Net::SMTP;
 use Getopt::Long;
-use Cwd qw();
+use File::Basename;
 
 sub help() {
         print "Usage: $0\n";
@@ -59,7 +59,7 @@ sub get_name {
 
 my $dryrun = 0;
 my $verbose = 0;
-my $user;
+my $user = "";
 GetOptions ("u|user=s" => \$user,
 	"dry-run" => \$dryrun,
 	"verbose" => \$verbose,
@@ -95,7 +95,7 @@ my @now=localtime(time);
 $now[4]++;
 $now[5]+=1900;
 
-my $current_path = Cwd::cwd();
+my $current_path = dirname(__FILE__);
 my $css_file = "$current_path/bootstrap.min.css";
 
 open FILE, $css_file or die "Couldn't open file: $!";
@@ -103,7 +103,7 @@ my $css = do {local $/; <FILE> };
 close FILE;
 
 my @uids = ();
-if (length($user) != 0) {
+if ($user ne "") {
 	my @cmd = ("id $user > /dev/null 2>&1");
 	my $user_exists = system(@cmd) == 0 or die "User $user does not exist\n";
 	@uids[0] = $user;	
@@ -111,16 +111,18 @@ if (length($user) != 0) {
 
 else { #Grab all users
 	opendir(HOMEDIR,$homedirectory1);
-	my @uids=grep ! /^\./, readdir(HOMEDIR);
+	@uids=grep ! /^\./, readdir(HOMEDIR);
 	closedir HOMEDIR;
 
 	opendir(HOMEDIR,$homedirectory2);
 	my @uids2=grep ! /^\./, readdir(HOMEDIR);
 	closedir HOMEDIR;
-
 	push(@uids,@uids2); 
-	}
+}
 
+while(my $test=shift(@uids)) {
+	print "$test\n";
+}
 while(my $uid=shift(@uids)) {
 		#check if user is in a-m or n-z
 		my $full_spam_path;
