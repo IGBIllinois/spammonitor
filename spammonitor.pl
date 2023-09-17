@@ -120,9 +120,6 @@ else { #Grab all users
 	push(@uids,@uids2); 
 }
 
-while(my $test=shift(@uids)) {
-	print "$test\n";
-}
 while(my $uid=shift(@uids)) {
 		#check if user is in a-m or n-z
 		my $full_spam_path;
