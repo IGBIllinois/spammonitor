@@ -4,5 +4,4 @@ requires 'Email::Simple','>=2.216';
 requires 'Email::Folder','>=0.860';
 requires 'Email::Delete','>=2.002';
 requires 'Net::SMTP','>3.11';
-requires 'File::Basename','5.38.0';
 
